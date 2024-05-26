@@ -2,13 +2,21 @@
 // Microsoft Visual C++에서 생성한 포함 파일입니다.
 // mfccassandra.rc에서 사용되고 있습니다.
 //
-#define IDM_ABOUTBOX                    0x0010
 #define IDD_ABOUTBOX                    100
 #define IDS_ABOUTBOX                    101
 #define IDD_MFC_CASSANDRA_DIALOG        102
 #define IDR_MAINFRAME                   128
-#define IDC_BUTTON1                     1000
-#define IDC_BUTTON2                     1001
+#define IDC_COMBO1                      1000
+#define IDC_STATIC_ODBC                 1001
+#define IDC_EDIT_IP                     1002
+#define IDC_EDIT_USER                   1003
+#define IDC_EDIT_PORT                   1004
+#define IDC_EDIT_PASS                   1005
+#define IDC_BTN_CONNECT                 1007
+#define IDC_SCHEMA_LIST                 1008
+#define IDC_TABLE_LIST                  1010
+#define IDC_BUTTON1                     1011
+#define IDC_BUTTON2                     1012
 
 // Next default values for new objects
 // 

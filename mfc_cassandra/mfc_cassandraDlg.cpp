@@ -18,46 +18,32 @@
 #define new DEBUG_NEW
 #endif
 
-class CAboutDlg : public CDialogEx
-{
-public:
-	CAboutDlg();
-
-	// 대화 상자 데이터입니다.
-#ifdef AFX_DESIGN_TIME
-	enum { IDD = IDD_ABOUTBOX };
-#endif
-
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
-
-protected:
-	DECLARE_MESSAGE_MAP()
-};
-
-CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
-{
-}
-
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-{
-	CDialogEx::DoDataExchange(pDX);
-}
-
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
-END_MESSAGE_MAP()
-
-
-
 CmfccassandraDlg::CmfccassandraDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFC_CASSANDRA_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	m_strIpAddress = _T("192.168.200.101");
+	m_strKeySpace = _T("system");
+	m_nPortNumber = 9042;
+	m_strUsername = _T("cassandra");
+	m_strPassword = _T("cassandra");
 }
 
 void CmfccassandraDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_COMBO1, m_DriverList);
+	DDX_Text(pDX, IDC_EDIT_IP, m_strIpAddress);
+	DDV_MaxChars(pDX, m_strIpAddress, 30);
+	DDX_Text(pDX, IDC_EDIT_PORT, m_nPortNumber);
+	DDV_MinMaxInt(pDX, m_nPortNumber, 0, 70000);
+	DDX_Text(pDX, IDC_EDIT_USER, m_strUsername);
+	DDV_MaxChars(pDX, m_strUsername, 100);
+	DDX_Text(pDX, IDC_EDIT_PASS, m_strPassword);
+	DDV_MaxChars(pDX, m_strPassword, 30);
+	DDX_Control(pDX, IDC_SCHEMA_LIST, m_ctrlList);
+	DDX_Control(pDX, IDC_TABLE_LIST, m_ctrlTableList);
 }
 
 BEGIN_MESSAGE_MAP(CmfccassandraDlg, CDialogEx)
@@ -72,8 +58,8 @@ BOOL CmfccassandraDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
-	ASSERT(IDM_ABOUTBOX < 0xF000);
+	//ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
+	// ASSERT(IDM_ABOUTBOX < 0xF000);
 
 	CMenu* pSysMenu = GetSystemMenu(FALSE);
 	if (pSysMenu != nullptr)
@@ -85,7 +71,7 @@ BOOL CmfccassandraDlg::OnInitDialog()
 		if (!strAboutMenu.IsEmpty())
 		{
 			pSysMenu->AppendMenu(MF_SEPARATOR);
-			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
+			// pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
 		}
 	}
 
@@ -97,15 +83,13 @@ BOOL CmfccassandraDlg::OnInitDialog()
 
 void CmfccassandraDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
-	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
-	{
-		CAboutDlg dlgAbout;
-		dlgAbout.DoModal();
-	}
-	else
-	{
-		CDialogEx::OnSysCommand(nID, lParam);
-	}
+	//if ((nID & 0xFFF0) == IDM_ABOUTBOX)
+	//{
+	//}
+	//else
+	//{
+	//	CDialogEx::OnSysCommand(nID, lParam);
+	//}
 }
 
 

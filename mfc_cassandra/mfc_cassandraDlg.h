@@ -25,4 +25,20 @@ protected:
 public:
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedButton2();
+
+
+public:
+	CComboBox m_DriverList;
+	int m_nDriverListLength;
+	CString m_strIpAddress;
+	int m_nPortNumber;
+	CString m_strKeySpace;
+	CString m_strUsername;
+	CString m_strPassword;
+	CString m_strSelectedDriver = _T("");
+	CString m_strDBInfos;
+	BOOL m_bIsClicked = false;
+	CString m_sSelectedSchema = _T("");
+	CListBox m_ctrlList;
+	CListBox m_ctrlTableList;
 };
