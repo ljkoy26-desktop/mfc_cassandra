@@ -372,12 +372,7 @@ void CmfccassandraDlg::OnBnClickedButton2()
 			int32_t value2;
 			cass_value_get_int32(column2, &value2);
 
-			TRACE(_T(" row [%d]  column1:  [%s] , column2: [%d] \n"), i, value1, value2);
-
-
-			i++;
-
-			// std::cout << "column1: " << std::string(value1, value1_length) << ", column2: " << value2 << std::endl;
+			TRACE(_T(" row [%d]  column1:  [%s] , column2: [%d] \n"), i++, value1, value2);
 		}
 
 		// 메모리 해제
