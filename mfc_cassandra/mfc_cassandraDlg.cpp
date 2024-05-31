@@ -305,6 +305,7 @@ void CmfccassandraDlg::OnBnClickedButton2()
 		cass_future_free(connect_future);
 		cass_cluster_free(cluster);
 		cass_session_free(session);
+		return;
 	}
 
 
