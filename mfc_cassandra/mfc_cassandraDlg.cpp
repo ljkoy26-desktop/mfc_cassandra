@@ -23,7 +23,7 @@ CmfccassandraDlg::CmfccassandraDlg(CWnd* pParent /*=nullptr*/)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
-	m_strIpAddress = _T("192.168.200.101");
+	m_strIpAddress = GetHost();
 	m_strKeySpace = _T("system");
 	m_nPortNumber = 9042;
 	m_strUsername = _T("cassandra");
@@ -130,7 +130,7 @@ void CmfccassandraDlg::OnBnClickedButton1()
 	CassSession* cass_session = cass_session_new();
 
 
-	std::string sHost = "192.168.200.101";
+	std::string sHost = GetHost();
 	int nPort = 9042;
 	std::string sKeyspace = "system";
 	std::string sUsername = "cassandra";
@@ -256,8 +256,10 @@ void CmfccassandraDlg::OnBnClickedButton2()
 	CassCluster* cluster = cass_cluster_new();
 	CassSession* session = cass_session_new();
 
+	// 컴퓨터\HKEY_CURRENT_USER\Software\Warevalley\Orange
+	// TestAddress
 
-	std::string sHost = "192.168.200.101";
+	std::string sHost = GetHost();
 	int nPort = 9042;
 	std::string sKeyspace = "system";
 	std::string sUsername = "cassandra";
@@ -377,4 +379,47 @@ void CmfccassandraDlg::OnBnClickedButton2()
 	cass_cluster_free(cluster);
 	cass_session_free(session);
 
+}
+
+
+
+CString CmfccassandraDlg::GetHost()
+{
+	// 레지스트리 키 경로
+
+	// (노트북) 10.10.78.11 , 
+	// (집   )  192.168.200.101
+
+
+	CString sReturn;
+	LPCTSTR lpszSubKey = _T("Software\\Warevalley\\Orange");
+
+	// 레지스트리 키를 연다.
+	CRegKey regKey;
+	LONG lResult = regKey.Open(HKEY_CURRENT_USER, lpszSubKey, KEY_READ);
+
+	TCHAR szValue[256];
+	if (lResult == ERROR_SUCCESS)
+	{
+		// 값을 읽을 버퍼와 길이를 지정한다.
+		ULONG nChars = 256;
+
+		// "TestAddress" 값을 읽어온다.
+		lResult = regKey.QueryStringValue(_T("TestAddress"), szValue, &nChars);
+
+		if (lResult == ERROR_SUCCESS)
+		{
+			// 값을 성공적으로 읽어왔다.
+		}
+		else
+			AfxMessageBox(_T("값을 읽는 데 실패했다."));
+
+		// 레지스트리 키를 닫는다.
+		regKey.Close();
+	}
+	else
+		AfxMessageBox(_T("레지스트리 키를 여는 데 실패했다."));
+
+	sReturn = szValue;
+	return sReturn;
 }

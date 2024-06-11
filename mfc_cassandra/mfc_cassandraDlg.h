@@ -26,7 +26,7 @@ public:
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedButton2();
 
-
+	CString GetHost();
 public:
 	CComboBox m_DriverList;
 	int m_nDriverListLength;
