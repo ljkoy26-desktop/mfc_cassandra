@@ -10,12 +10,17 @@
 #define IDC_EDIT_IP                     1002
 #define IDC_EDIT_USER                   1003
 #define IDC_EDIT_PORT                   1004
-#define IDC_EDIT_PASS                   1005
+#define IDC_EDIT_PASSWORD               1005
 #define IDC_EDIT_KEYSPACE               1006
 #define IDC_BTN_CONNECT                 1007
+#define IDC_EDIT_EXECUTE_OUTPUT         1007
 #define IDC_SCHEMA_LIST                 1008
+#define IDC_EDIT_SQL_TEXT              1009
 #define IDC_TABLE_LIST                  1010
+#define IDC_BUTTON_CONNECT              1011
 #define IDC_BUTTON_EXAMPLE              1012
+#define IDC_BUTTON_DISCONNECT           1013
+#define IDC_BUTTON_QUERY_EXECUTE        1014
 
 // Next default values for new objects
 // 
@@ -23,7 +28,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1002
+#define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -4,6 +4,8 @@
 #include "../include/cassandra.h"
 #include "../include/dse.h" // " when connecting to DataStax Enterpise */
 
+#include <memory>
+
 class CmfccassandraDlg : public CDialogEx
 {
 public:
@@ -29,9 +31,13 @@ public:
 	CString m_strUserName;
 	CString m_strPassword;
 
+	CString m_strInputQuery;
+	CString m_strExecuteOutput;
+
+
 	CComboBox m_DriverList;
-	CListBox m_ctrlList;
-	CListBox m_ctrlTableList;
+	CListBox m_ListSchema;
+	CListBox m_ListTable;
 
 public:
 	CString GetHost();
@@ -47,5 +53,7 @@ protected:
 public:
 	afx_msg void OnBnClickedButton2();
 
-
+	afx_msg void OnBnClickedButtonConnect();
+	afx_msg void OnBnClickedButtonDisconnect();
+	afx_msg void OnBnClickedButtonQueryExecute();
 };
