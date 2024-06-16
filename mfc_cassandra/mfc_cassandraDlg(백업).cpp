@@ -7,6 +7,9 @@
 #include "mfc_cassandraDlg.h"
 #include "afxdialogex.h"
 
+#include "../include/cassandra.h"
+#include "../include/dse.h" // " when connecting to DataStax Enterpise */
+
 #include <string>
 #include <vector>
 #include <iostream>
@@ -21,8 +24,8 @@ CmfccassandraDlg::CmfccassandraDlg(CWnd* pParent /*=nullptr*/)
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
 	m_strIpAddress = GetHost();
-	m_nPortNumber = 9042;
 	m_strKeySpace = _T("system");
+	m_nPortNumber = 9042;
 	m_strUserName = _T("cassandra");
 	m_strPassword = _T("cassandra");
 }
@@ -37,8 +40,6 @@ void CmfccassandraDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxInt(pDX, m_nPortNumber, 0, 70000);
 	DDX_Text(pDX, IDC_EDIT_USER, m_strUserName);
 	DDV_MaxChars(pDX, m_strUserName, 100);
-	DDX_Text(pDX, IDC_EDIT_KEYSPACE, m_strKeySpace);
-	DDV_MaxChars(pDX, m_strKeySpace, 100);
 	DDX_Text(pDX, IDC_EDIT_PASS, m_strPassword);
 	DDV_MaxChars(pDX, m_strPassword, 30);
 	DDX_Control(pDX, IDC_SCHEMA_LIST, m_ctrlList);
@@ -49,7 +50,8 @@ BEGIN_MESSAGE_MAP(CmfccassandraDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BUTTON_EXAMPLE, &CmfccassandraDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON1, &CmfccassandraDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CmfccassandraDlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 BOOL CmfccassandraDlg::OnInitDialog()
@@ -121,49 +123,192 @@ HCURSOR CmfccassandraDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-void CmfccassandraDlg::OnBnClickedButton2() // 기본예제
+void CmfccassandraDlg::OnBnClickedButton1()
+{
+	CassCluster* cass_cluster = cass_cluster_new();
+	CassSession* cass_session = cass_session_new();
+
+	// 1. 호스트를 연결합니다.
+	cass_cluster_set_contact_points(cass_cluster, m_strIpAddress);
+
+
+	// 2. 포트를 지정합니다.
+	cass_cluster_set_port(cass_cluster, m_nPortNumber);
+
+
+	// 3. 계정, 비밀번호를 지정합니다.
+	cass_cluster_set_credentials(cass_cluster, m_strUserName, m_strPassword);
+
+	// 4. 실제 접속을 지정합니다. 
+
+	// 4.1 기본 접속 진행 ( 키스페이스 없음 ) 
+	// connect_future = cass_session_connect(session, cluster);
+	 
+	// 4.2 키스페이스 지정 하여 접속 진행
+
+	CassFuture* cass_connect_future = NULL;
+	cass_connect_future = cass_session_connect_keyspace(cass_session, cass_cluster, m_strKeySpace);
+
+
+	// 연결 도중 발생한 에러가 있는지 확인합니다.
+	CassError nError = cass_future_error_code(cass_connect_future);
+
+	if (nError == CASS_OK) // 성공
+	{
+		CassFuture* cass_close_future = NULL;
+
+		/* 쿼리문 작성 및 쿼리 실행 */
+		const char* query = "select * from store.shopping_cart;";
+		CassStatement* cass_statement = cass_statement_new(query, 0);
+		
+		CassFuture* cass_result_future = cass_session_execute(cass_session, cass_statement);
+
+		nError = cass_future_error_code(cass_result_future);
+		if (nError == CASS_OK)
+		{
+			/* Retrieve result set and get the first row */
+			const CassResult* cass_result = cass_future_get_result(cass_result_future);
+			const CassRow* cass_row = cass_result_first_row(cass_result);
+
+			if (cass_row)
+			{
+				const CassValue* value = cass_row_get_column_by_name(cass_row, "user2id");
+
+				size_t nDataLength;
+				const char* szRowData;
+				nError = cass_value_get_string(value, &szRowData, &nDataLength);
+
+				TRACE(_T("리턴 코드 [%d] \n"), nError);
+
+				if (nError == CASS_ERROR_LIB_NULL_VALUE)
+				{
+					const char* szMsg;
+					size_t nMsgLength;
+
+					cass_future_error_message(cass_result_future, &szMsg, &nMsgLength);
+					nError = cass_future_error_code(cass_result_future);
+
+					TRACE(_T("쿼리 실행중 오류 발생 ( 에러코드 nError [%d] , 에러메시지 szMsg [%s] \n"), nError ,szMsg);
+				}
+
+
+
+				printf("release_version: '%.*s'\n", (int)nDataLength, szRowData);
+
+
+				std::vector<std::string> strVector;
+
+				
+
+				for (auto it : strVector)
+					TRACE(_T("release_version: '%d %s'\n", (int)nDataLength, it));
+			}
+
+			// 결과 인스턴스를 해제합니다.
+			cass_result_free(cass_result);
+		}
+		else 
+		{
+			/* Handle error */
+			const char* szMsg;
+			size_t nMsgLength;
+			cass_future_error_message(cass_result_future, &szMsg, &nMsgLength);
+
+			TRACE(_T("Unable to run query: '%.*s'\n", (int)nMsgLength, szMsg));
+		}
+
+		cass_statement_free(cass_statement);
+		cass_future_free(cass_result_future);
+
+		/* Close the session */
+		cass_close_future = cass_session_close(cass_session);
+		cass_future_wait(cass_close_future);
+		cass_future_free(cass_close_future);
+	}
+	else 
+	{
+
+		// 접속 관련 시도 중 오류가 발생하였습니다.
+
+
+		const char* szMsg;
+		size_t nMsgLength;
+		cass_future_error_message(cass_connect_future, &szMsg, &nMsgLength);
+
+
+
+		fprintf(stderr, "Unable to connect: '%.*s'\n", (int)nMsgLength, szMsg);
+	}
+
+	cass_future_free(cass_connect_future);
+	cass_cluster_free(cass_cluster);
+	cass_session_free(cass_session);
+
+
+
+}
+
+
+void CmfccassandraDlg::OnBnClickedButton2()
 {
 	UpdateData(TRUE);
 
-	m_cluster = cass_cluster_new();
-	
-	cass_cluster_set_contact_points(m_cluster, m_strIpAddress);						// 1. 호스트를 연결합니다.
-	cass_cluster_set_port(m_cluster, m_nPortNumber);								// 2. 포트를 지정합니다.
-	cass_cluster_set_credentials(m_cluster, m_strUserName, m_strPassword);			// 3. 계정, 비밀번호를 지정합니다.
 
-	m_session = cass_session_new();
-	m_Connect_future = cass_session_connect_keyspace(m_session, m_cluster, m_strKeySpace); // 4. 키스페이스 지정 하여 접속 진행
+	CassFuture* connect_future = NULL;
+	CassCluster* cluster = cass_cluster_new();
+	CassSession* session = cass_session_new();
+
+	// 1. 호스트를 연결합니다.
+	cass_cluster_set_contact_points(cluster, m_strIpAddress);
+
+
+	// 2. 포트를 지정합니다.
+	cass_cluster_set_port(cluster, m_nPortNumber);
+
+
+	// 3. 계정, 비밀번호를 지정합니다.
+	cass_cluster_set_credentials(cluster, m_strUserName, m_strPassword);
+
+	// 4. 실제 접속을 지정합니다. 
+
+	// 4.1 기본 접속 진행 ( 키스페이스 없음 ) 
+	// connect_future = session_connect(session, cluster);
+
+	// 4.2 키스페이스 지정 하여 접속 진행
+	connect_future = cass_session_connect_keyspace(session, cluster, m_strKeySpace);
 
 	// 연결 도중 발생한 에러가 있는지 확인합니다.
-	CassError rc = cass_future_error_code(m_Connect_future);
+	CassError rc = cass_future_error_code(connect_future);
+
+
 
 	if (rc != CASS_OK) 
 	{
 		// 연결 오류 처리
 		const char* message;
 		size_t message_length;
-		cass_future_error_message(m_Connect_future, &message, &message_length);
+		cass_future_error_message(connect_future, &message, &message_length);
 
 		TRACE(_T("접속 실패 관련 메세지  [%s] \n"), message);
 
 		// 접속 실패 관련 메세지  [Underlying connection error: Received error response 'Provided username cassandra and/or password are incorrect' (0x02000100)] 
 		// 접속 실패 관련 메세지  [Underlying connection error: Received error response 'Provided username cassandr and/or password are incorrect' (0x02000100)] 
 
-		cass_future_free(m_Connect_future);
-		cass_cluster_free(m_cluster);
-		cass_session_free(m_session);
+		cass_future_free(connect_future);
+		cass_cluster_free(cluster);
+		cass_session_free(session);
 		return;
 	}
 
 
 
 
-	cass_future_free(m_Connect_future);
+	cass_future_free(connect_future);
 
 	// 데이터 쿼리
 	const char* query = "select * from store.shopping_cart;";
 	CassStatement* statement = cass_statement_new(query, 0);
-	CassFuture* result_future = cass_session_execute(m_session, statement);
+	CassFuture* result_future = cass_session_execute(session, statement);
 
 	// 결과 대기
 	rc = cass_future_error_code(result_future);
@@ -217,12 +362,12 @@ void CmfccassandraDlg::OnBnClickedButton2() // 기본예제
 	cass_future_free(result_future);
 
 	// 세션 종료 및 클러스터 해제
-	CassFuture* close_future = cass_session_close(m_session);
+	CassFuture* close_future = cass_session_close(session);
 	cass_future_wait(close_future);
 	cass_future_free(close_future);
 
-	cass_cluster_free(m_cluster);
-	cass_session_free(m_session);
+	cass_cluster_free(cluster);
+	cass_session_free(session);
 
 }
 

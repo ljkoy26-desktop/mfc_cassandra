@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="mfc_cassandra.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="mfc_cassandraDlg.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -32,6 +29,9 @@
     </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="mfc_cassandra.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

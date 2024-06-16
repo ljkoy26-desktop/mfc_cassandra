@@ -1,6 +1,9 @@
 ﻿
 #pragma once
 
+#include "../include/cassandra.h"
+#include "../include/dse.h" // " when connecting to DataStax Enterpise */
+
 class CmfccassandraDlg : public CDialogEx
 {
 public:
@@ -14,6 +17,25 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);
 
 
+protected: 
+	CassCluster* m_cluster;
+	CassSession* m_session;
+	CassFuture* m_Connect_future;
+	
+public:
+	CString m_strIpAddress;
+	int m_nPortNumber;
+	CString m_strKeySpace;
+	CString m_strUserName;
+	CString m_strPassword;
+
+	CComboBox m_DriverList;
+	CListBox m_ctrlList;
+	CListBox m_ctrlTableList;
+
+public:
+	CString GetHost();
+
 protected:
 	HICON m_hIcon;
 
@@ -23,22 +45,7 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedButton2();
 
-	CString GetHost();
-public:
-	CComboBox m_DriverList;
-	int m_nDriverListLength;
-	CString m_strIpAddress;
-	int m_nPortNumber;
-	CString m_strKeySpace;
-	CString m_strUsername;
-	CString m_strPassword;
-	CString m_strSelectedDriver = _T("");
-	CString m_strDBInfos;
-	BOOL m_bIsClicked = false;
-	CString m_sSelectedSchema = _T("");
-	CListBox m_ctrlList;
-	CListBox m_ctrlTableList;
+
 };
