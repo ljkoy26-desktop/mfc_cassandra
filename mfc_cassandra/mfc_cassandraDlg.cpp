@@ -147,13 +147,18 @@ void CmfccassandraDlg::OnBnClickedButton2() // 기본예제
 	UpdateData(TRUE);
 
 	m_cluster = cass_cluster_new();
-	
-	cass_cluster_set_contact_points(m_cluster, m_strIpAddress);						// 1. 호스트를 연결합니다.
+
+	CStringA szIPAddress = (CStringA)m_strIpAddress;
+	CStringA szUserName = (CStringA)m_strUserName;
+	CStringA szPassword = (CStringA)m_strPassword;
+	CStringA szKeySpace = (CStringA)m_strKeySpace;
+
+	cass_cluster_set_contact_points(m_cluster, szIPAddress);						// 1. 호스트를 연결합니다.
 	cass_cluster_set_port(m_cluster, m_nPortNumber);								// 2. 포트를 지정합니다.
-	cass_cluster_set_credentials(m_cluster, m_strUserName, m_strPassword);			// 3. 계정, 비밀번호를 지정합니다.
+	cass_cluster_set_credentials(m_cluster, szUserName, szPassword);			// 3. 계정, 비밀번호를 지정합니다.
 
 	m_session = cass_session_new();
-	m_Connect_future = cass_session_connect_keyspace(m_session, m_cluster, m_strKeySpace); // 4. 키스페이스 지정 하여 접속 진행
+	m_Connect_future = cass_session_connect_keyspace(m_session, m_cluster, szKeySpace); // 4. 키스페이스 지정 하여 접속 진행
 
 	// 연결 도중 발생한 에러가 있는지 확인합니다.
 	CassError rc = cass_future_error_code(m_Connect_future);
@@ -184,7 +189,10 @@ void CmfccassandraDlg::OnBnClickedButton2() // 기본예제
 
 	// 데이터 쿼리
 
-	CassStatement* statement = cass_statement_new(m_strInputQuery, 0);
+
+	CStringA szQuery = (CStringA)m_strInputQuery;
+
+	CassStatement* statement = cass_statement_new(szQuery, 0);
 	CassFuture* result_future = cass_session_execute(m_session, statement);
 
 	// 결과 대기
@@ -194,16 +202,18 @@ void CmfccassandraDlg::OnBnClickedButton2() // 기본예제
 	{
 		// 쿼리 오류 처리
 		const char* message;
-		CString sMsg;
+		CStringA sMsg;
 		size_t message_length;
 
 		cass_future_error_message(result_future, &message, &message_length);
 		rc = cass_future_error_code(result_future);
-		sMsg.Format(_T("[ Error Code : %d ]  , Error Message [ %s ] \n"), rc, message);
+		sMsg.Format("[ Error Code : %d ]  , Error Message [ %s ] \n", rc, message);
+		CString str = (CString)sMsg;
 
-		GetDlgItem(IDC_EDIT_EXECUTE_OUTPUT)->SetWindowText(sMsg);
 
-		TRACE(sMsg);
+		GetDlgItem(IDC_EDIT_EXECUTE_OUTPUT)->SetWindowText(str);
+
+		TRACE(str);
 
 	}
 	else 
@@ -313,12 +323,17 @@ void CmfccassandraDlg::OnBnClickedButtonConnect()
 
 	m_cluster = cass_cluster_new();
 
-	cass_cluster_set_contact_points(m_cluster, m_strIpAddress);						// 1. 호스트를 연결합니다.
+	CStringA szIPAddress = (CStringA)m_strIpAddress;
+	CStringA szUserName = (CStringA)m_strUserName;
+	CStringA szPassword = (CStringA)m_strPassword;
+	CStringA szKeySpace = (CStringA)m_strKeySpace;
+
+	cass_cluster_set_contact_points(m_cluster, szIPAddress);						// 1. 호스트를 연결합니다.
 	cass_cluster_set_port(m_cluster, m_nPortNumber);								// 2. 포트를 지정합니다.
-	cass_cluster_set_credentials(m_cluster, m_strUserName, m_strPassword);			// 3. 계정, 비밀번호를 지정합니다.
+	cass_cluster_set_credentials(m_cluster, szUserName, szPassword);			// 3. 계정, 비밀번호를 지정합니다.
 
 	m_session = cass_session_new();
-	m_Connect_future = cass_session_connect_keyspace(m_session, m_cluster, m_strKeySpace); // 4. 키스페이스 지정 하여 접속 진행
+	m_Connect_future = cass_session_connect_keyspace(m_session, m_cluster, szKeySpace); // 4. 키스페이스 지정 하여 접속 진행
 
 	// 연결 도중 발생한 에러가 있는지 확인합니다.
 	CassError rc = cass_future_error_code(m_Connect_future);
@@ -329,10 +344,11 @@ void CmfccassandraDlg::OnBnClickedButtonConnect()
 		const char* message;
 		size_t message_length;
 		cass_future_error_message(m_Connect_future, &message, &message_length);
+		CString sMsg = (CString)message;
+		
+		AfxMessageBox(sMsg);
 
-		AfxMessageBox(message);
-
-		TRACE(_T("접속 실패 관련 메세지  [%s] \n"), message);
+		TRACE(_T("접속 실패 관련 메세지  [%s] \n"), sMsg);
 
 		// 접속 실패 관련 메세지  [Underlying connection error: Received error response 'Provided username cassandra and/or password are incorrect' (0x02000100)] 
 		// 접속 실패 관련 메세지  [Underlying connection error: Received error response 'Provided username cassandr and/or password are incorrect' (0x02000100)] 
@@ -373,7 +389,6 @@ void CmfccassandraDlg::OnBnClickedButtonDisconnect()
 	cass_session_free(m_session);
 
 
-
 	GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(TRUE);
 	GetDlgItem(IDC_BUTTON_QUERY_EXECUTE)->EnableWindow(FALSE);
 	GetDlgItem(IDC_BUTTON_DISCONNECT)->EnableWindow(FALSE);
@@ -394,7 +409,8 @@ void CmfccassandraDlg::OnBnClickedButtonQueryExecute()
 
 	// 데이터 쿼리
 
-	CassStatement* statement = cass_statement_new(m_strInputQuery, 0);
+	CStringA szQuery = (CStringA)m_strInputQuery;
+	CassStatement* statement = cass_statement_new(szQuery, 0);
 	CassFuture* result_future = cass_session_execute(m_session, statement);
 
 	// 결과 대기
